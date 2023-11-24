@@ -63,6 +63,9 @@ type GatewayAzureDirective = {
 
   // HTTP status code
   status?: number
+  
+  // res body
+  body?: string
 
   // Custom headers
   headers?: Record<string, string>
@@ -222,6 +225,9 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
       // TODO: should also accept `header` to match express
       if (gateway$.headers) {
         res.headers = { ...res.headers, ...gateway$.headers }
+      }
+      if(gateway$.body) {
+        res.body = gateway$.body
       }
     }
     
