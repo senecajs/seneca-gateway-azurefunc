@@ -109,6 +109,7 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
       headers: { ...options.headers },
       body: '{}',
     }
+    let path = Url.parse(request.url).pathname || ''
     let method = request.method
     let body = request.body
     let headers = null == request.headers ? {} :
@@ -138,7 +139,7 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
       // TODO: legacy, deprecate
       'GET' === method
     ) {
-      let pm = request.path.match(/([^\/]+)\/([^\/]+)$/)
+      let pm = path.match(/([^\/]+)\/([^\/]+)$/)
       if (pm) {
         json.name = pm[1]
         json.code = pm[2]
