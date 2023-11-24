@@ -78,7 +78,7 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
   const gateway = seneca.export('gateway' + gtag + '/handler')
   const parseJSON = seneca.export('gateway' + gtag + '/parseJSON')
 
-  const webhookMatch = async (request: any, json: any) => {
+  const webhookMatch = async (request: any, body: any, json: any) => {
     let match = false
     const url = request.url || ''
     const path = Url.parse(url).pathname || ''
@@ -92,8 +92,7 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
             json[param] = m[1 + pI]
           }
           Object.assign(json, (webhook.fixed || {}))
-          json.body =
-            request.body instanceof ReadableStream ? await request.json() : request.body
+          json.body = body || {}
           match = true
           break done;
         }
@@ -117,7 +116,7 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
     const url = request.url || ''
     let path = Url.parse(url).pathname || ''
     let method = request.method
-    let body = request.body
+    let body: ReadableStream | Object | null = request.body
     let headers = null == request.headers ? {} :
       Array.from(request.headers.entries())
       .reduce(
@@ -126,12 +125,11 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
       )
     
     let query = request.query || new Map()
-
+    
+    body = null != body ? await request.json() : {}
     // TODO: need better control of how the body is presented
-    let json = null == body ? {} :
-      body instanceof ReadableStream ? await request.json() : body
-
-    json = null == json ? {} : json
+    // shallow copy for better control of the body
+    let json: any = { ...body }
 
     if (json.error$) {
       res.statusCode = 400
@@ -139,9 +137,8 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
       return res
     }
     
-    console.log("HEADERS: ", headers)
-
-
+    // console.log("HEADERS: ", headers)
+    
     // Check if hook
     if (
       // TODO: legacy, deprecate
@@ -155,7 +152,7 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
       }
     }
     else {
-      await webhookMatch(request, json)
+      await webhookMatch(request, body, json)
     }
     
     let queryStringParams: any = Array.from(query.entries())
@@ -172,15 +169,15 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
     json.gateway = {
       params: request.params,
       query: queryStringParams,
-      body, // this is READABLESTREAM - should it be { ... } ?
+      body,
       headers
     }
      
     let result: any = await gateway(json, { res, request, context })
     
-    console.log('queryStringParams: ', queryStringParams)
-    console.log("BODY: ", json )
-    console.log('result: ', result)
+    // console.log('queryStringParams: ', queryStringParams)
+    // console.log("BODY: ", json )
+    // console.log('result: ', result)
     
     if (result.out) {
       res.body = JSON.stringify(result.out)

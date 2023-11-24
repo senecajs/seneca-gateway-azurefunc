@@ -35,10 +35,11 @@ describe('gateway-azure', () => {
     let handler = seneca.export('gateway-azure/handler')
 
     let evmock = (body: any, headers?: any) => ({
-      body,
+      body: new ReadableStream(),
       query: body.query,
       params: body.params,
       headers: headers || new Map(),
+      json: async () => body,
     })
     let ctxmock = {}
 
@@ -103,8 +104,9 @@ describe('gateway-azure', () => {
     let handler = seneca.export('gateway-azure/handler')
 
     let evmock = (body: any, headers?: any) => ({
-      body,
-      headers: headers || new Map()
+      body: new ReadableStream(),
+      headers: headers || new Map(),
+      json: async () => body,
     })
     let ctxmock = {}
 
@@ -123,7 +125,7 @@ describe('gateway-azure', () => {
 
 
 
-  test('event-s3', async () => {
+  test('eventhandler', async () => {
 
     const seneca = Seneca({ legacy: false })
       .test()
@@ -147,45 +149,7 @@ describe('gateway-azure', () => {
         seneca$: {
           msg: 'foo:1'
           // msg: { foo: 1 }
-        },
-        /*
-        "Records": [
-          {
-            "eventVersion": "2.0",
-            "eventSource": "aws:s3",
-            "awsRegion": "us-west-2",
-            "eventTime": "1970-01-01T00:00:00.000Z",
-            "eventName": "ObjectCreated:Put",
-            "userIdentity": {
-              "principalId": "EXAMPLE"
-            },
-            "requestParameters": {
-              "sourceIPAddress": "127.0.0.1"
-            },
-            "responseElements": {
-              "x-amz-request-id": "EXAMPLE123456789",
-              "x-amz-id-2": "EXAMPLE123/5678abcdefghijklambdaisawesome/mnopqrstuvwxyzABCDEFGH"
-            },
-            "s3": {
-              "s3SchemaVersion": "1.0",
-              "configurationId": "testConfigRule",
-              "bucket": {
-                "name": "my-s3-bucket",
-                "ownerIdentity": {
-                  "principalId": "EXAMPLE"
-                },
-                "arn": "arn:aws:s3:::example-bucket"
-              },
-              "object": {
-                "key": "HappyFace.jpg",
-                "size": 1024,
-                "eTag": "0123456789abcdef0123456789abcdef",
-                "sequencer": "0A1B2C3D4E5F678901"
-              }
-            }
-          }
-        ]
-        */
+        }
       },
       { ctx: true }
     )
@@ -225,18 +189,19 @@ describe('gateway-azure', () => {
     let handler = seneca.export('gateway-azure/handler')
 
     let evmock = (path: string, body: any, headers?: any, query?: any) => ({
-      path,
-      body,
-      headers: headers || {},
-      queryStringParameters: query || {},
+      url: path,
+      body: new ReadableStream(),
+      headers: headers || new Map(),
+      query: query || new Map(),
+      json: async () => body
     })
     let ctxmock = {}
 
     let event = evmock(
       'http://example.com/api/public/hook/foo/bar?y=1',
       { x: 2 },
-      { 'Foo-Bar': 'Zed' },
-      { y: '1' },
+      new Map(Object.entries({ 'Foo-Bar': 'Zed' })),
+      new Map(Object.entries({ y: '1' })),
     )
 
     //  console.log('EVENT', event)
