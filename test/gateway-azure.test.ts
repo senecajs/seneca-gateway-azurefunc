@@ -36,18 +36,19 @@ describe('gateway-azure', () => {
 
     let evmock = (body: any, headers?: any) => ({
       body,
-      queryStringParameters: body.queryStringParameters,
-      pathParameters: body.pathParameters,
-      headers: headers || {},
+      query: body.query,
+      params: body.params,
+      headers: headers || new Map(),
     })
     let ctxmock = {}
 
     let out = await handler(evmock({
       foo: 1,
       x: 2,
-      pathParameters: { var: 1 },
-      queryStringParameters: { query: 1 }
-    }, { 'Foo-Bar': 'Zed' }), ctxmock)
+      params: { var: 1 },
+      query: new Map(Object.entries({ query: 1 })),
+    }, new Map(Object.entries({ 'Foo-Bar': 'Zed' }))), ctxmock)
+    
     out.body = out.body.replace(/,"meta\$":\{"id":".*"\}/, '')
 
     expect(out).toMatchObject({
@@ -103,11 +104,11 @@ describe('gateway-azure', () => {
 
     let evmock = (body: any, headers?: any) => ({
       body,
-      headers: headers || {}
+      headers: headers || new Map()
     })
     let ctxmock = {}
 
-    let out = await handler(evmock({ foo: 1, x: 2 }, { 'Foo-Bar': 'Zed' }), ctxmock)
+    let out = await handler(evmock({ foo: 1, x: 2 }, new Map(Object.entries({ 'Foo-Bar': 'Zed' }))), ctxmock)
     out.body = out.body.replace(/,"meta\$":\{"id":".*"\}/, '')
 
     expect(out).toMatchObject({

@@ -80,7 +80,8 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
 
   const webhookMatch = async (request: any, json: any) => {
     let match = false
-    const path = Url.parse(request.url).pathname || ''
+    const url = request.url || ''
+    const path = Url.parse(url).pathname || ''
     done: for (let webhook of (options.webhooks || [])) {
       if (webhook.re) {
         let m = webhook.re.exec(path)
@@ -104,12 +105,17 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
 
   async function handler(request: any, context: any) {
 
+    // console.log("REQ: ", request)
+    
+    
     const res: any = {
       statusCode: 200,
       headers: { ...options.headers },
       body: '{}',
     }
-    let path = Url.parse(request.url).pathname || ''
+    
+    const url = request.url || ''
+    let path = Url.parse(url).pathname || ''
     let method = request.method
     let body = request.body
     let headers = null == request.headers ? {} :
@@ -118,6 +124,8 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
         (a: any, entry: any) => (a[entry[0].toLowerCase()] = entry[1], a),
         ({} as any)
       )
+    
+    let query = request.query || new Map()
 
     // TODO: need better control of how the body is presented
     let json = null == body ? {} :
@@ -150,7 +158,7 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
       await webhookMatch(request, json)
     }
     
-    let queryStringParams: any = Array.from(request.query.entries())
+    let queryStringParams: any = Array.from(query.entries())
       .reduce((a: any, entry: any) => (a[entry[0]] = entry[1], a),
         {})
     
