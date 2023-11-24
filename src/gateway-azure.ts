@@ -150,12 +150,74 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
       await webhookMatch(request, json)
     }
     
+    let queryStringParams: any = Array.from(request.query.entries())
+      .reduce((a: any, entry: any) => (a[entry[0]] = entry[1], a),
+        {})
+    
+    Object.keys(queryStringParams).forEach((key, _index) => {
+      queryStringParams[key] =
+        (Array.isArray(queryStringParams[key]) &&
+          queryStringParams[key].length === 1) ?
+          queryStringParams[key][0] : queryStringParams[key]
+    })
+    
+    json.gateway = {
+      params: request.params,
+      query: queryStringParams,
+      body, // this is READABLESTREAM - should it be { ... } ?
+      headers
+    }
+     
     let result: any = await gateway(json, { res, request, context })
     
+    console.log('queryStringParams: ', queryStringParams)
     console.log("BODY: ", json )
     console.log('result: ', result)
+    
     if (result.out) {
       res.body = JSON.stringify(result.out)
+    }
+    
+    let gateway$: GatewayAzureDirective = result.gateway$
+
+    if (gateway$) {
+      delete result.gateway$
+
+      if (gateway$.auth && options.auth) {
+        if (gateway$.auth.token) {
+          let cookieStr =
+            Cookie.serialize(
+              options.auth.token.name,
+              gateway$.auth.token,
+              {
+                ...options.auth.cookie,
+                ...(gateway$.auth.cookie || {})
+              }
+            )
+          res.headers['set-cookie'] = cookieStr
+        }
+        else if (gateway$.auth.remove) {
+          res.headers['set-cookie'] =
+            options.auth.token.name + '=NONE; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+        }
+      }
+
+      else if (gateway$.redirect?.location) {
+        res.statusCode = 302
+        res.headers.location = gateway$.redirect?.location
+      }
+
+      if (result.error) {
+        res.statusCode = gateway$.status || 500
+      }
+      else if (gateway$.status) {
+        res.statusCode = gateway$.status
+      }
+
+      // TODO: should also accept `header` to match express
+      if (gateway$.headers) {
+        res.headers = { ...res.headers, ...gateway$.headers }
+      }
     }
     
     /*
