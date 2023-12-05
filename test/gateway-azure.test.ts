@@ -35,11 +35,10 @@ describe('gateway-azure', () => {
     let handler = seneca.export('gateway-azure/handler')
 
     let evmock = (body: any, headers?: any) => ({
-      body: new ReadableStream(),
+      body,
       query: body.query,
       params: body.params,
-      headers: headers || new Map(),
-      json: async () => body,
+      headers: headers || {},
     })
     let ctxmock = {}
 
@@ -47,8 +46,8 @@ describe('gateway-azure', () => {
       foo: 1,
       x: 2,
       params: { var: 1 },
-      query: new Map(Object.entries({ query: 1 })),
-    }, new Map(Object.entries({ 'Foo-Bar': 'Zed' }))), ctxmock)
+      query: { query: 1 },
+    }, { 'Foo-Bar': 'Zed' }), ctxmock)
     
     out.body = out.body.replace(/,"meta\$":\{"id":".*"\}/, '')
 
@@ -104,13 +103,12 @@ describe('gateway-azure', () => {
     let handler = seneca.export('gateway-azure/handler')
 
     let evmock = (body: any, headers?: any) => ({
-      body: new ReadableStream(),
-      headers: headers || new Map(),
-      json: async () => body,
+      body,
+      headers: headers || {},
     })
     let ctxmock = {}
 
-    let out = await handler(evmock({ foo: 1, x: 2 }, new Map(Object.entries({ 'Foo-Bar': 'Zed' }))), ctxmock)
+    let out = await handler(evmock({ foo: 1, x: 2 }, { 'Foo-Bar': 'Zed' }), ctxmock)
     out.body = out.body.replace(/,"meta\$":\{"id":".*"\}/, '')
 
     expect(out).toMatchObject({
@@ -190,18 +188,17 @@ describe('gateway-azure', () => {
 
     let evmock = (path: string, body: any, headers?: any, query?: any) => ({
       url: path,
-      body: new ReadableStream(),
-      headers: headers || new Map(),
-      query: query || new Map(),
-      json: async () => body
+      body,
+      headers: headers || {},
+      query: query || {},
     })
     let ctxmock = {}
 
     let event = evmock(
       'http://example.com/api/public/hook/foo/bar?y=1',
       { x: 2 },
-      new Map(Object.entries({ 'Foo-Bar': 'Zed' })),
-      new Map(Object.entries({ y: '1' })),
+      { 'Foo-Bar': 'Zed' },
+      { y: '1' },
     )
 
     //  console.log('EVENT', event)
