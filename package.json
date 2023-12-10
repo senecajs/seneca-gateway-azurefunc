@@ -1,6 +1,6 @@
 {
   "name": "@seneca/gateway-azure",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/gateway-azure.js",
   "type": "commonjs",
   "types": "dist/gateway-azure.d.ts",
