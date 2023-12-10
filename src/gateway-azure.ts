@@ -24,7 +24,7 @@ type GatewayAzureOptions = {
     msg?: any
   },
   auth?: {
-    cognito: {
+    azure: {
       required: boolean
     },
     token: {
@@ -327,7 +327,7 @@ gateway_azure.defaults = {
     msg: 'sys,gateway,handle:event'
   },
   auth: {
-    cognito: {
+    azure: {
       required: false
     },
     token: {
