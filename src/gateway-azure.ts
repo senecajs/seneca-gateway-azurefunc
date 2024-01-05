@@ -184,6 +184,7 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
     }
     
     let gateway$: GatewayAzureDirective = result.gateway$
+    // let gateway$: GatewayAzureDirective = { auth: {token: 'TOKEN' } }
 
     if (gateway$) {
       delete result.gateway$
@@ -199,10 +200,10 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
                 ...(gateway$.auth.cookie || {})
               }
             )
-          res.headers['set-cookie'] = cookieStr
+          res.headers['Set-Cookie'] = cookieStr
         }
         else if (gateway$.auth.remove) {
-          res.headers['set-cookie'] =
+          res.headers['Set-Cookie'] =
             options.auth.token.name + '=NONE; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
         }
       }
@@ -336,7 +337,8 @@ gateway_azure.defaults = {
     cookie: Open({
       maxAge: 365 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      sameSite: true,
+      sameSite: 'None',
+      secure: true,
       path: '/',
     })
   },
