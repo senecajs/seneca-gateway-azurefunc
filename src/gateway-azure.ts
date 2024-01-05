@@ -335,7 +335,7 @@ gateway_azure.defaults = {
       name: 'seneca-auth'
     },
     cookie: Open({
-      maxAge: 365 * 24 * 60 * 60 * 1000,
+      // maxAge: 365 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       sameSite: 'None',
       secure: true,
