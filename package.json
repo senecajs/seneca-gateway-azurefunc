@@ -1,5 +1,5 @@
 {
-  "name": "@seneca/gateway-azurefunc",
+  "name": "@seneca/gateway-azure",
   "version": "0.0.4",
   "main": "dist/gateway-azure.js",
   "type": "commonjs",
