@@ -123,6 +123,35 @@ describe('gateway-azure', () => {
 
 
 
+  test('cookie', async () => {
+    const seneca = Seneca({ legacy: false })
+      .test()
+      .quiet()
+      .use('promisify')
+      .use('gateway')
+      .use(GatewayAzure, { auth: { cookie: { maxAge: 1000 } } })
+      .message('login:1', async function() {
+        return { ok: true, gateway$: { auth: { token: 'TOKEN' } } }
+      })
+      .message('logout:1', async function() {
+        return { ok: true, gateway$: { auth: { remove: true } } }
+      })
+
+    await seneca.ready()
+
+    let handler = seneca.export('gateway-azure/handler')
+
+    // The cookie fields are the defaults (an open object) plus the option.
+    let out = await handler({ body: { login: 1 }, headers: {} }, {})
+    expect(out.headers['Set-Cookie']).toEqual(
+      'seneca-auth=TOKEN; Max-Age=1000; Path=/; HttpOnly; Secure; SameSite=None')
+
+    out = await handler({ body: { logout: 1 }, headers: {} }, {})
+    expect(out.headers['Set-Cookie']).toEqual(
+      'seneca-auth=NONE; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT')
+  })
+
+
   test('eventhandler', async () => {
 
     const seneca = Seneca({ legacy: false })

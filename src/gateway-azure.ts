@@ -5,9 +5,6 @@ import Url from 'url'
 import Cookie from 'cookie'
 
 
-import { Open, Skip } from 'gubu'
-
-
 import type {
   GatewayResult
 } from '@seneca/gateway'
@@ -322,8 +319,9 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
 }
 
 
-// Default options.
-gateway_azure.defaults = {
+// Default options, built with the builders Seneca passes in `valid`:
+// shape on Seneca 4, Gubu on Seneca 3. Seneca 4 rejects Gubu shapes.
+gateway_azure.defaults = ({ valid }: { valid: any }) => ({
   event: {
     msg: 'sys,gateway,handle:event'
   },
@@ -334,7 +332,7 @@ gateway_azure.defaults = {
     token: {
       name: 'seneca-auth'
     },
-    cookie: Open({
+    cookie: valid.Open({
       // maxAge: 365 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       sameSite: 'None',
@@ -342,7 +340,7 @@ gateway_azure.defaults = {
       path: '/',
     })
   },
-  headers: Open({
+  headers: valid.Open({
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': '*',
     'Access-Control-Allow-Credentials': 'true',
@@ -352,7 +350,7 @@ gateway_azure.defaults = {
     params: [String],
     fixed: {}
   }]
-}
+})
 
 
 export default gateway_azure
