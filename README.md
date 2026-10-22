@@ -1,9 +1,9 @@
 ![Seneca](http://senecajs.org/files/assets/seneca-logo.png)
 > A [Seneca.js](http://senecajs.org) plugin
 
-# @seneca/gateway-azurefunc
+# @seneca/gateway-azure
 
-[![npm version](https://img.shields.io/npm/v/@seneca/gateway-azurefunc.svg)](https://npmjs.com/package/@seneca/gateway-azurefunc)
+[![npm version](https://img.shields.io/npm/v/@seneca/gateway-azure.svg)](https://npmjs.com/package/@seneca/gateway-azure)
 [![build](https://github.com/senecajs/seneca-gateway-azurefunc/actions/workflows/build.yml/badge.svg)](https://github.com/senecajs/seneca-gateway-azurefunc/actions/workflows/build.yml)
 [![Known Vulnerabilities](https://snyk.io/test/github/senecajs/seneca-gateway-azurefunc/badge.svg)](https://snyk.io/test/github/senecajs/seneca-gateway-azurefunc)
 
@@ -15,14 +15,14 @@ Handle incoming messages within Azure Functions.
 ## Install
 
 ```sh
-npm install @seneca/gateway-azurefunc
+npm install @seneca/gateway-azure
 ```
 
 ## Quick Example
 
 ```js
 require('seneca')()
-  .use('@seneca/gateway-azurefunc')
+  .use('@seneca/gateway-azure')
 ```
 
 ## More Examples
