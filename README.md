@@ -15,13 +15,17 @@ Handle incoming messages within Azure Functions.
 ## Install
 
 ```sh
-npm install @seneca/gateway-azure
+npm install seneca@^4 @seneca/gateway @seneca/gateway-azure
 ```
+
+Version 0.1 needs Seneca 4 and Node.js 24 or later. For Seneca 3, use
+`@seneca/gateway-azure@0.0.4`.
 
 ## Quick Example
 
 ```js
 require('seneca')()
+  .use('@seneca/gateway')
   .use('@seneca/gateway-azure')
 ```
 

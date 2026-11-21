@@ -8,8 +8,7 @@ describe('gateway-azure', () => {
   test('happy', async () => {
     const seneca = Seneca({ legacy: false })
       .test()
-      .use('promisify')
-      .use('gateway')
+      .use('@seneca/gateway')
       .use(GatewayAzure)
     await seneca.ready()
   })
@@ -22,8 +21,7 @@ describe('gateway-azure', () => {
       // use quiet$ directive when available
       .quiet()
 
-      .use('promisify')
-      .use('gateway')
+      .use('@seneca/gateway')
       .use(GatewayAzure)
       .act('sys:gateway,add:hook,hook:fixed', { action: { y: 99 } })
       .message('foo:1', async function(m: any) {
@@ -63,10 +61,10 @@ describe('gateway-azure', () => {
     out = await handler(evmock({ bad: 1 }), ctxmock)
 
     out.body =
-      out.body.replace(/meta\$":\{"id":"[^"]+"/, 'meta$\":{\"id\":\"METAID\"')
+      out.body.replace(/"id":"[^"]+"/g, '\"id\":\"METAID\"')
 
     expect(out).toMatchObject({
-      "body": "{\"meta$\":{\"id\":\"METAID\"},\"error$\":{\"name\":\"Error\",\"code\":\"act_not_found\"}}",
+      "body": "{\"meta$\":{\"id\":\"METAID\",\"error\":true},\"name\":\"Error\",\"id\":\"METAID\",\"code\":\"act_not_found\"}",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "*"
@@ -84,8 +82,7 @@ describe('gateway-azure', () => {
       // use quiet$ directive when available
       .quiet()
 
-      .use('promisify')
-      .use('gateway')
+      .use('@seneca/gateway')
       .use(GatewayAzure, {
         headers: {
           "Access-Control-Allow-Origin": "foo",
@@ -127,8 +124,7 @@ describe('gateway-azure', () => {
     const seneca = Seneca({ legacy: false })
       .test()
       .quiet()
-      .use('promisify')
-      .use('gateway')
+      .use('@seneca/gateway')
       .use(GatewayAzure, { auth: { cookie: { maxAge: 1000 } } })
       .message('login:1', async function() {
         return { ok: true, gateway$: { auth: { token: 'TOKEN' } } }
@@ -160,8 +156,7 @@ describe('gateway-azure', () => {
       // use quiet$ directive when available
       // .quiet()
 
-      .use('promisify')
-      .use('gateway')
+      .use('@seneca/gateway')
       .use(GatewayAzure)
       .message('foo:1', async function(msg: any) {
         return { ok: true, bar: 2, event: msg.event }
@@ -196,8 +191,7 @@ describe('gateway-azure', () => {
       // use quiet$ directive when available
       .quiet()
 
-      .use('promisify')
-      .use('gateway')
+      .use('@seneca/gateway')
       .use(GatewayAzure, {
         webhooks: [{
           re: /api\/public\/hook\/([^\/]+)\/([^\/?]+)/,

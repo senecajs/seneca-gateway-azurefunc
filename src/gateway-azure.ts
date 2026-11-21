@@ -4,6 +4,8 @@ import Url from 'url'
 
 import Cookie from 'cookie'
 
+import type Seneca from 'seneca'
+
 
 import type {
   GatewayResult
@@ -67,7 +69,7 @@ type GatewayAzureDirective = {
 
 
 
-function gateway_azure(this: any, options: GatewayAzureOptions) {
+function gateway_azure(this: Seneca.Instance, options: GatewayAzureOptions) {
   const seneca: any = this
 
   const tag = seneca.plugin.tag
@@ -319,9 +321,8 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
 }
 
 
-// Default options, built with the builders Seneca passes in `valid`:
-// shape on Seneca 4, Gubu on Seneca 3. Seneca 4 rejects Gubu shapes.
-gateway_azure.defaults = ({ valid }: { valid: any }) => ({
+// Default options, built with the validator that Seneca passes in.
+gateway_azure.defaults = ({ valid }: { valid: Seneca.Instance['valid'] }): Record<string, any> => ({
   event: {
     msg: 'sys,gateway,handle:event'
   },
