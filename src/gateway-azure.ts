@@ -4,8 +4,7 @@ import Url from 'url'
 
 import Cookie from 'cookie'
 
-
-import { Open, Skip } from 'gubu'
+import type Seneca from 'seneca'
 
 
 import type {
@@ -70,7 +69,7 @@ type GatewayAzureDirective = {
 
 
 
-function gateway_azure(this: any, options: GatewayAzureOptions) {
+function gateway_azure(this: Seneca.Instance, options: GatewayAzureOptions) {
   const seneca: any = this
 
   const tag = seneca.plugin.tag
@@ -322,8 +321,8 @@ function gateway_azure(this: any, options: GatewayAzureOptions) {
 }
 
 
-// Default options.
-gateway_azure.defaults = {
+// Default options, built with the validator that Seneca passes in.
+gateway_azure.defaults = ({ valid }: { valid: Seneca.Instance['valid'] }): Record<string, any> => ({
   event: {
     msg: 'sys,gateway,handle:event'
   },
@@ -334,7 +333,7 @@ gateway_azure.defaults = {
     token: {
       name: 'seneca-auth'
     },
-    cookie: Open({
+    cookie: valid.Open({
       // maxAge: 365 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       sameSite: 'None',
@@ -342,7 +341,7 @@ gateway_azure.defaults = {
       path: '/',
     })
   },
-  headers: Open({
+  headers: valid.Open({
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': '*',
     'Access-Control-Allow-Credentials': 'true',
@@ -352,7 +351,7 @@ gateway_azure.defaults = {
     params: [String],
     fixed: {}
   }]
-}
+})
 
 
 export default gateway_azure
